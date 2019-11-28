@@ -20,24 +20,37 @@ extension PHCachingImageManager {
         return options
     }
     
-    func fetchImage(for asset: PHAsset, cropRect: CGRect, targetSize: CGSize, callback: @escaping (UIImage, [String: Any]) -> Void) {
+    func fetchImage(for asset: PHAsset, cropRect: CGRect?, targetSize: CGSize?, callback: @escaping (UIImage, [String: Any]) -> Void) {
         let options = photoImageRequestOptions()
-    
+        
         // Fetch Highiest quality image possible.
         requestImageData(for: asset, options: options) { data, dataUTI, CTFontOrientation, info in
+            
             if let data = data, let image = UIImage(data: data)?.resetOrientation() {
             
-                // Crop the high quality image manually.
-                let xCrop: CGFloat = cropRect.origin.x * CGFloat(asset.pixelWidth)
-                let yCrop: CGFloat = cropRect.origin.y * CGFloat(asset.pixelHeight)
-                let scaledCropRect = CGRect(x: xCrop,
-                                            y: yCrop,
-                                            width: targetSize.width,
-                                            height: targetSize.height)
-                if let imageRef = image.cgImage?.cropping(to: scaledCropRect) {
-                    let croppedImage = UIImage(cgImage: imageRef)
+                if let cropRect = cropRect, let targetSize = targetSize {
+                    
+                    // if we have a cropRect and a targetSize, proceed with crop
+                    
+                    // Crop the high quality image manually.
+                    let xCrop: CGFloat = cropRect.origin.x * CGFloat(asset.pixelWidth)
+                    let yCrop: CGFloat = cropRect.origin.y * CGFloat(asset.pixelHeight)
+                    let scaledCropRect = CGRect(x: xCrop,
+                                                y: yCrop,
+                                                width: targetSize.width,
+                                                height: targetSize.height)
+                    if let imageRef = image.cgImage?.cropping(to: scaledCropRect) {
+                        let croppedImage = UIImage(cgImage: imageRef)
+                        let exifs = self.metadataForImageData(data: data)
+                        callback(croppedImage, exifs)
+                    }
+                    
+                } else {
+                    
+                    // if we don't have a crop rect and target size, send back the original image
+                    
                     let exifs = self.metadataForImageData(data: data)
-                    callback(croppedImage, exifs)
+                    callback(image, exifs)
                 }
             }
         }
