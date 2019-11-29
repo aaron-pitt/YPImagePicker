@@ -113,6 +113,13 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
         }
     }
     
+    public override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        registerViewSize(self.v.collectionView.bounds.size)
+        self.v.collectionView.collectionViewLayout.invalidateLayout()
+    }
+    
     public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -521,8 +528,17 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
         }
     }
     
+    private func registerViewSize(_ size: CGSize) {
+        
+        var config = YPImagePickerConfiguration.shared
+        config.library.currentViewWidth = size.width
+        YPImagePickerConfiguration.shared = config
+    }
+    
     public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
+        
+        registerViewSize(size)
         
         coordinator.animate(alongsideTransition: { (context) in
             self.v.collectionView.collectionViewLayout.invalidateLayout()

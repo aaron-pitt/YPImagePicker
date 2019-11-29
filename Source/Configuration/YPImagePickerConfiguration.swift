@@ -178,9 +178,6 @@ public struct YPConfigLibrary {
     // force users to select at least the number of items defined.
     public var minNumberOfItems = 1
 
-    /// Set the number of items per row in collection view. Defaults to 4.
-    public var numberOfItemsInRow: Int = 4
-
     /// Set the spacing between items in collection view. Defaults to 1.0.
     public var spacingBetweenItems: CGFloat = 1.0
 
@@ -189,6 +186,38 @@ public struct YPConfigLibrary {
     
     /// Allow to preselected media items
     public var preselectedItems: [YPMediaItem]?
+    
+    public var rowItemCountWithWidth: (rowCount: Int, width: CGFloat) = (1, 200.0) {
+        didSet {
+            self.currentViewWidth = self.rowItemCountWithWidth.width
+        }
+    }
+    
+    public var currentViewWidth: CGFloat? = nil
+    
+    public func calculateNumberOfItemsInRow(withViewWidth viewWidth: CGFloat?) -> Int {
+        
+        let currentWidth = rowItemCountWithWidth.width
+        
+        if let newWidth = viewWidth {
+            if currentWidth > 0 && newWidth > 0 { // sanity check #1
+                let widthAdjustment = newWidth / currentWidth
+                if widthAdjustment >= 0.2 && widthAdjustment <= 5 { // sanity check #2
+                    var adjustedWidth = widthAdjustment * CGFloat(rowItemCountWithWidth.rowCount)
+                    adjustedWidth.round(.toNearestOrAwayFromZero)
+                    return Int(adjustedWidth)
+                }
+            }
+        }
+        
+        return rowItemCountWithWidth.rowCount > 0 ? rowItemCountWithWidth.rowCount : 4; // default to 4 as a last resort
+    }
+    
+    public var numberOfItemsInRow: Int {
+        get {
+            return calculateNumberOfItemsInRow(withViewWidth: self.currentViewWidth)
+        }
+    }
 }
 
 /// Encapsulates video specific settings.
