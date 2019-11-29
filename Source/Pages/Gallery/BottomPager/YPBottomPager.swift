@@ -17,6 +17,7 @@ open class YPBottomPager: UIViewController, UIScrollViewDelegate {
     
     weak var delegate: YPBottomPagerDelegate?
     var controllers = [UIViewController]() { didSet { reload() } }
+    var controllerWidthConstraints = [NSLayoutConstraint]()
     
     var v = YPBottomPagerView()
     
@@ -49,7 +50,10 @@ open class YPBottomPager: UIViewController, UIScrollViewDelegate {
     }
     
     func reload() {
+        
         let viewWidth: CGFloat = UIScreen.main.bounds.width
+        controllerWidthConstraints.removeAll()
+        
         for (index, c) in controllers.enumerated() {
             c.willMove(toParent: self)
             addChild(c)
@@ -58,8 +62,10 @@ open class YPBottomPager: UIViewController, UIScrollViewDelegate {
             c.didMove(toParent: self)
             c.view.left(x)
             c.view.top(0)
-            c.view.width(viewWidth)
             equal(heights: c.view, v.scrollView)
+            // persist width constraints
+            let widthConstraint = adjustWidth(of: c.view, to: viewWidth)
+            controllerWidthConstraints.append(widthConstraint)
         }
         
         let scrollableWidth: CGFloat = CGFloat(controllers.count) * CGFloat(viewWidth)
@@ -79,6 +85,12 @@ open class YPBottomPager: UIViewController, UIScrollViewDelegate {
         let currentMenuItem = v.header.menuItems[0]
         currentMenuItem.select()
         v.header.refreshMenuItems()
+    }
+    
+    func adjustWidth(of view:UIView, to width: CGFloat) -> NSLayoutConstraint {
+        let constraint = NSLayoutConstraint(item: view, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: width)
+        view.addConstraint(constraint)
+        return constraint
     }
     
     @objc
@@ -118,5 +130,15 @@ open class YPBottomPager: UIViewController, UIScrollViewDelegate {
         }
         let currentMenuItem = v.header.menuItems[page]
         currentMenuItem.select()
+    }
+    
+    open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        for widthConstraint in self.controllerWidthConstraints {
+            widthConstraint.constant = size.width
+        }
+        
+        coordinator.animate(alongsideTransition: { (context) in }, completion: nil)
     }
 }

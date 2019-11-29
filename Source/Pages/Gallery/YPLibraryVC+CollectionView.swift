@@ -136,7 +136,7 @@ extension YPLibraryVC: UICollectionViewDelegate {
         cell.durationLabel.isHidden = !isVideo
         cell.durationLabel.text = isVideo ? YPHelper.formattedStrigFrom(asset.duration) : ""
         cell.multipleSelectionIndicator.isHidden = !multipleSelectionEnabled
-        cell.isSelected = currentlySelectedIndex == indexPath.row
+        cell.isSelected = currentlySelectedIndex == indexPath.row && self.didTapToSelect
         
         // Set correct selection number
         if let index = selection.firstIndex(where: { $0.assetIdentifier == asset.localIdentifier }) {
@@ -161,6 +161,9 @@ extension YPLibraryVC: UICollectionViewDelegate {
     }
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        self.didTapToSelect = true
+        
         let previouslySelectedIndexPath = IndexPath(row: currentlySelectedIndex, section: 0)
         currentlySelectedIndex = indexPath.row
 

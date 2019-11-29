@@ -20,6 +20,7 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
     internal var currentlySelectedIndex: Int = 0
     internal let mediaManager = LibraryMediaManager()
     internal var latestImageTapped = ""
+    internal var didTapToSelect = false
     internal let panGestureHelper = PanGestureHelper()
 
     // MARK: - Init
@@ -176,16 +177,16 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
         multipleSelectionEnabled = !multipleSelectionEnabled
 
         if multipleSelectionEnabled {
-            if selection.isEmpty {
-                let asset = mediaManager.fetchResult[currentlySelectedIndex]
-                selection = [
-                    YPLibrarySelection(index: currentlySelectedIndex,
-                                       cropRect: v.currentCropRect(),
-                                       scrollViewContentOffset: v.assetZoomableView!.contentOffset,
-                                       scrollViewZoomScale: v.assetZoomableView!.zoomScale,
-                                       assetIdentifier: asset.localIdentifier)
-                ]
-            }
+//            if selection.isEmpty {
+//                let asset = mediaManager.fetchResult[currentlySelectedIndex]
+//                selection = [
+//                    YPLibrarySelection(index: currentlySelectedIndex,
+//                                       cropRect: v.currentCropRect(),
+//                                       scrollViewContentOffset: v.assetZoomableView!.contentOffset,
+//                                       scrollViewZoomScale: v.assetZoomableView!.zoomScale,
+//                                       assetIdentifier: asset.localIdentifier)
+//                ]
+//            }
         } else {
             selection.removeAll()
             addToSelection(indexPath: IndexPath(row: currentlySelectedIndex, section: 0))
@@ -518,6 +519,14 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
                 }
             }
         }
+    }
+    
+    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        coordinator.animate(alongsideTransition: { (context) in
+            self.v.collectionView.collectionViewLayout.invalidateLayout()
+        }, completion: nil)
     }
     
     // MARK: - TargetSize
