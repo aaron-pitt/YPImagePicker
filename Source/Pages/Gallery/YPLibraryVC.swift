@@ -259,8 +259,13 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
             present(alert, animated: true, completion: nil)
         case .notDetermined:
             // Show permission popup and get new status
-            PHPhotoLibrary.requestAuthorization { s in
+            PHPhotoLibrary.requestAuthorization { [weak self] s in
                 DispatchQueue.main.async {
+                    let authorized = (s == .authorized)
+                    if authorized, let strongSelf = self {
+                        strongSelf.registerViewSize(strongSelf.v.collectionView.bounds.size)
+                        strongSelf.v.collectionView.collectionViewLayout.invalidateLayout()
+                    }
                     block(s == .authorized)
                 }
             }
