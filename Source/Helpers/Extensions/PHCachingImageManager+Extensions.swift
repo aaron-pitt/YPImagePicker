@@ -13,7 +13,7 @@ extension PHCachingImageManager {
     
     private func photoImageRequestOptions() -> PHImageRequestOptions {
         let options = PHImageRequestOptions()
-        options.deliveryMode = .highQualityFormat
+        options.deliveryMode = .fastFormat
         options.isNetworkAccessAllowed = true
         options.resizeMode = .exact
         options.isSynchronous = true // Ok since we're already in a background thread

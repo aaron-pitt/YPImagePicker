@@ -335,24 +335,26 @@ public class YPLibraryVC: UIViewController, YPPermissionCheckable {
             self.updateCropInfo()
         }
         
-        DispatchQueue.global(qos: .userInitiated).async {
-            switch asset.mediaType {
-            case .image:
-                self.v.assetZoomableView.setImage(asset,
-                                                  mediaManager: self.mediaManager,
-                                                  storedCropPosition: self.fetchStoredCrop(),
-                                                  completion: completion)
-            case .video:
-                self.v.assetZoomableView.setVideo(asset,
-                                                  mediaManager: self.mediaManager,
-                                                  storedCropPosition: self.fetchStoredCrop(),
-                                                  completion: completion)
-            case .audio, .unknown:
-                ()
-            @unknown default:
-                fatalError()
-            }
-        }
+        completion()
+        
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            switch asset.mediaType {
+//            case .image:
+//                self.v.assetZoomableView.setImage(asset,
+//                                                  mediaManager: self.mediaManager,
+//                                                  storedCropPosition: self.fetchStoredCrop(),
+//                                                  completion: completion)
+//            case .video:
+//                self.v.assetZoomableView.setVideo(asset,
+//                                                  mediaManager: self.mediaManager,
+//                                                  storedCropPosition: self.fetchStoredCrop(),
+//                                                  completion: completion)
+//            case .audio, .unknown:
+//                ()
+//            @unknown default:
+//                fatalError()
+//            }
+//        }
     }
     
     // MARK: - Verification
